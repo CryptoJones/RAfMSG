@@ -1,0 +1,10 @@
+[package]
+name = "ragfmsg"
+version = "0.1.0"
+edition = "2021"
+description = "Reference architecture glue for a multiplayer space game: seam contracts and tests"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
