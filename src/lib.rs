@@ -3,6 +3,7 @@ pub mod flight;
 pub mod floating_origin;
 pub mod ifcs;
 pub mod input;
+pub mod interest;
 pub mod meshing;
 pub mod net;
 pub mod network;
