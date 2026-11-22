@@ -51,6 +51,10 @@ Authority stays on the server; the client predicts and reconciles. Loss and jitt
 
 Every box in the diagrams corresponds to a recorded decision with its rationale, tradeoff and code location: [DESIGN_DECISIONS.md](DESIGN_DECISIONS.md).
 
+## Developer guide
+
+Conventions, workflow, testing recipes and diagram instructions: [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) ([PDF](DEVELOPER_GUIDE.pdf)).
+
 ## Build and verify
 
 Rust stable, edition 2021. No network services, display, or game assets are needed.
@@ -69,6 +73,7 @@ The same three gates are configured in `.github/workflows/ci.yml`.
 src/                 17 library modules plus lib.rs, one per subsystem or substrate
 tests/               17 integration test files, grouped by seam
 docs/diagrams/       editable draw.io sources, PNG exports, and render.py
+DEVELOPER_GUIDE.*    contributor workflow and conventions (Markdown + PDF)
 Cargo.toml           crate definition and pinned dependency versions
 ```
 
