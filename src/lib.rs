@@ -2,6 +2,7 @@ pub mod ecs;
 pub mod flight;
 pub mod ifcs;
 pub mod input;
+pub mod meshing;
 pub mod net;
 pub mod network;
 pub mod physics;
