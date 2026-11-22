@@ -1,5 +1,6 @@
 pub mod ecs;
 pub mod flight;
+pub mod floating_origin;
 pub mod ifcs;
 pub mod input;
 pub mod meshing;
