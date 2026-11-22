@@ -5,6 +5,7 @@ pub mod net;
 pub mod network;
 pub mod physics;
 pub mod physics3d;
+pub mod prediction;
 pub mod sim;
 pub mod types;
 pub mod world;
