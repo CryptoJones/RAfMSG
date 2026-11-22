@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="drawio" version="26.0.0">
+  <diagram name="RAfMSG-architecture">
+    <mxGraphModel dx="1680" dy="1180" grid="0" page="1" pageWidth="1680" pageHeight="1180" background="#07090f">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="canvas" value="" style="rounded=0;html=0;fillColor=#07090f;strokeColor=none;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="1680" height="1180" as="geometry" />
+        </mxCell>
+        <mxCell id="heading" value="&lt;b&gt;RAfMSG — Two-Tier Seam Architecture&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#d6f2ff;fontSize=28;fontStyle=1;fontFamily=Verdana;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="22" width="1560" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="subheading" value="Executable contracts first: a deterministic reference core, engine-shaped adapters, and standalone subsystem seams — verified by headless tests." style="text;html=1;strokeColor=none;fillColor=none;fontColor=#8190a4;fontSize=15;fontFamily=Verdana;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="70" width="1560" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="band0" value="&lt;b&gt;ENGINE-SHAPED ADAPTERS  —  the same contracts expressed with real crates&lt;/b&gt;" style="rounded=1;arcSize=8;dashed=1;dashPattern=8 8;html=1;whiteSpace=wrap;fillColor=#140d24;strokeColor=#b48cff;strokeWidth=2;verticalAlign=top;spacingTop=8;spacingLeft=16;fontColor=#b48cff;fontSize=14;fontStyle=1;fontFamily=Verdana;align=left;" vertex="1" parent="1">
+          <mxGeometry x="60" y="140" width="1560" height="330" as="geometry" />
+        </mxCell>
+        <mxCell id="band1" value="&lt;b&gt;DETERMINISTIC REFERENCE CORE  —  self-contained, BTreeMap-ordered, f64&lt;/b&gt;" style="rounded=1;arcSize=8;dashed=1;dashPattern=8 8;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;verticalAlign=top;spacingTop=8;spacingLeft=16;fontColor=#27d4ff;fontSize=14;fontStyle=1;fontFamily=Verdana;align=left;" vertex="1" parent="1">
+          <mxGeometry x="60" y="510" width="1000" height="360" as="geometry" />
+        </mxCell>
+        <mxCell id="band2" value="&lt;b&gt;STANDALONE SEAM SUBSYSTEMS  —  contract-first, test-only&lt;/b&gt;" style="rounded=1;arcSize=8;dashed=1;dashPattern=8 8;html=1;whiteSpace=wrap;fillColor=#0a1a14;strokeColor=#55ff99;strokeWidth=2;verticalAlign=top;spacingTop=8;spacingLeft=16;fontColor=#55ff99;fontSize=14;fontStyle=1;fontFamily=Verdana;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="510" width="520" height="360" as="geometry" />
+        </mxCell>
+        <mxCell id="band3" value="&lt;b&gt;SEAM CONTRACT TESTS  —  the actual product&lt;/b&gt;" style="rounded=1;arcSize=8;dashed=1;dashPattern=8 8;html=1;whiteSpace=wrap;fillColor=#1a1408;strokeColor=#ffb454;strokeWidth=2;verticalAlign=top;spacingTop=8;spacingLeft=16;fontColor=#ffb454;fontSize=14;fontStyle=1;fontFamily=Verdana;align=left;" vertex="1" parent="1">
+          <mxGeometry x="60" y="900" width="1560" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="node_ecs" value="&lt;b&gt;bevy_ecs substrate&lt;/b&gt;&lt;br/&gt;ZST role markers&lt;br/&gt;ordered SystemSets" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#140d24;strokeColor=#b48cff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="90" y="196" width="480" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_prediction" value="&lt;b&gt;lightyear prediction&lt;/b&gt;&lt;br/&gt;HistoryBuffer&lt;br/&gt;10-tick rollback cap" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#140d24;strokeColor=#b48cff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="610" y="196" width="480" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_input" value="&lt;b&gt;input authority&lt;/b&gt;&lt;br/&gt;sequenced inputs&lt;br/&gt;pluggable validators" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#140d24;strokeColor=#b48cff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="196" width="480" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_network" value="&lt;b&gt;network adapter&lt;/b&gt;&lt;br/&gt;bincode · UDP · delta&lt;br/&gt;ARQ · heartbeat" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#140d24;strokeColor=#b48cff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="90" y="336" width="480" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_physics3d" value="&lt;b&gt;rapier3d-f64&lt;/b&gt;&lt;br/&gt;fixed 60 Hz&lt;br/&gt;sorted snapshots" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#140d24;strokeColor=#b48cff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="610" y="336" width="480" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_flight" value="&lt;b&gt;flight dynamics&lt;/b&gt;&lt;br/&gt;12-thruster allocation&lt;br/&gt;g-limit clamps" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#140d24;strokeColor=#b48cff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="336" width="480" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_types" value="&lt;b&gt;types / physics&lt;/b&gt;&lt;br/&gt;f64 Vec3/Quat · DT 1/60&lt;br/&gt;one shared integrator" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="90" y="566" width="280" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_world" value="&lt;b&gt;world&lt;/b&gt;&lt;br/&gt;BTreeMap order&lt;br/&gt;opt-in replication" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="410" y="566" width="280" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_sim" value="&lt;b&gt;sim&lt;/b&gt;&lt;br/&gt;server input buffer&lt;br/&gt;client rollback" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="730" y="566" width="280" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_ifcs" value="&lt;b&gt;ifcs&lt;/b&gt;&lt;br/&gt;control law&lt;br/&gt;thrust + torque" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="90" y="706" width="280" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_net" value="&lt;b&gt;net&lt;/b&gt;&lt;br/&gt;seeded LCG&lt;br/&gt;latency/jitter/loss" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="410" y="706" width="280" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_harness" value="&lt;b&gt;test_harness&lt;/b&gt;&lt;br/&gt;headless runner&lt;br/&gt;JSON reports" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="730" y="706" width="280" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_meshing" value="&lt;b&gt;meshing&lt;/b&gt;&lt;br/&gt;single authority&lt;br/&gt;2-phase handoff" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1a14;strokeColor=#55ff99;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="566" width="240" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_origin" value="&lt;b&gt;floating origin&lt;/b&gt;&lt;br/&gt;f64 world&lt;br/&gt;local-frame rebase" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1a14;strokeColor=#55ff99;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="566" width="240" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_interest" value="&lt;b&gt;interest&lt;/b&gt;&lt;br/&gt;R-tree index&lt;br/&gt;10/12 km hysteresis" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1a14;strokeColor=#55ff99;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="706" width="240" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_backend" value="&lt;b&gt;backend&lt;/b&gt;&lt;br/&gt;HMAC · sessions&lt;br/&gt;SQLite persistence" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1a14;strokeColor=#55ff99;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="706" width="240" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="node_tests" value="&lt;b&gt;8 seam contracts · 114 headless tests&lt;/b&gt;&lt;br/&gt;bit-exact math · latency/loss/fault injection · handoff state machines · SQLite restart · UDP loopback" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#1a1408;strokeColor=#ffb454;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="360" y="950" width="960" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="label0" value="same contract, different substrate" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#ffb454;fontSize=13;fontStyle=0;fontFamily=Verdana;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="540" y="444" width="600" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="label1" value="verified by" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#55ff99;fontSize=12;fontStyle=0;fontFamily=Verdana;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="-160" y="916" width="600" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="label2" value="verified by" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#55ff99;fontSize=12;fontStyle=0;fontFamily=Verdana;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="874" width="600" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="label3" value="No integrated game binary or renderer: each tier is an executable specification of a seam." style="text;html=1;strokeColor=none;fillColor=none;fontColor=#8190a4;fontSize=16;fontStyle=0;fontFamily=Verdana;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="540" y="1106" width="600" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="edge0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#ffb454;strokeWidth=2;dashed=1;fontColor=#ffb454;fontSize=12;" edge="1" parent="1" source="node_sim" target="node_prediction">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#ffb454;strokeWidth=2;dashed=1;fontColor=#ffb454;fontSize=12;" edge="1" parent="1" source="node_net" target="node_network">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#ffb454;strokeWidth=2;dashed=1;fontColor=#ffb454;fontSize=12;" edge="1" parent="1" source="node_ifcs" target="node_flight">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#55ff99;strokeWidth=2;dashed=0;fontColor=#55ff99;fontSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="60" y="300" as="sourcePoint" />
+            <mxPoint x="360" y="1020" as="targetPoint" />
+            <mxPoint x="42" y="300" as="points" />
+            <mxPoint x="42" y="1020" as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#55ff99;strokeWidth=2;dashed=0;fontColor=#55ff99;fontSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="870" y="870" as="sourcePoint" />
+            <mxPoint x="870" y="950" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#55ff99;strokeWidth=2;dashed=0;fontColor=#55ff99;fontSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1360" y="870" as="sourcePoint" />
+            <mxPoint x="1360" y="950" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
