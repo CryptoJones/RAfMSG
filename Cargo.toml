@@ -8,3 +8,4 @@ description = "Reference architecture glue for a multiplayer space game: seam co
 path = "src/lib.rs"
 
 [dependencies]
+bevy_ecs = "0.20.1"

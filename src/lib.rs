@@ -1,3 +1,4 @@
+pub mod ecs;
 pub mod ifcs;
 pub mod net;
 pub mod physics;
