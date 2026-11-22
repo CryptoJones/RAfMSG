@@ -228,5 +228,6 @@ These are deliberate gaps in the reference architecture, not defects in the impl
 ## Related documents
 
 - [README.md](README.md) — overview, seam table, build commands and status.
+- [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) — contributor workflow, conventions and testing recipes ([PDF](DEVELOPER_GUIDE.pdf)).
 - `docs/diagrams/*.drawio` — editable diagram sources.
 - `docs/diagrams/render.py` — regenerates the PNG exports from the same layout definitions.
