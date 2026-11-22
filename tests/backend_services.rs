@@ -14,6 +14,10 @@ fn backend_auth_token_roundtrip_and_tamper() {
         auth.verify("alice.deadbeef"),
         Err(BackendError::InvalidToken)
     );
+    let mut flipped = token.clone();
+    let last = flipped.pop().unwrap();
+    flipped.push(if last == '0' { '1' } else { '0' });
+    assert_eq!(auth.verify(&flipped), Err(BackendError::InvalidToken));
     assert_eq!(auth.verify("not-a-token"), Err(BackendError::InvalidToken));
     let other = AuthService::new(b"different-secret");
     assert_eq!(other.verify(&token), Err(BackendError::InvalidToken));
