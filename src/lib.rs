@@ -1,5 +1,6 @@
 pub mod ecs;
 pub mod ifcs;
+pub mod input;
 pub mod net;
 pub mod network;
 pub mod physics;

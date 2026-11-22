@@ -13,4 +13,5 @@ rapier3d-f64 = "0.36.1"
 lightyear = { version = "0.31.0", default-features = false, features = ["std", "client", "server", "replication"] }
 serde = { version = "1.0", features = ["derive"] }
 bevy_replicon = "0.45.6"
+bevy_input = { version = "0.20.1", features = ["keyboard", "gamepad", "touch"] }
 bincode = "1.3.3"
