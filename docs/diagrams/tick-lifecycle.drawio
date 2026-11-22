@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="drawio" version="26.0.0">
+  <diagram name="RAfMSG-tick-lifecycle">
+    <mxGraphModel dx="1680" dy="1000" grid="0" page="1" pageWidth="1680" pageHeight="1000" background="#07090f">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="canvas" value="" style="rounded=0;html=0;fillColor=#07090f;strokeColor=none;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="1680" height="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="heading" value="&lt;b&gt;One Tick — Server Authority, Client Prediction, Reconciliation&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#d6f2ff;fontSize=28;fontStyle=1;fontFamily=Verdana;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="22" width="1560" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="subheading" value="60 Hz logical clock · one shared f64 integrator · input replay drives convergence after loss, jitter and injected faults." style="text;html=1;strokeColor=none;fillColor=none;fontColor=#8190a4;fontSize=15;fontFamily=Verdana;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="70" width="1560" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="band0" value="&lt;b&gt;TWO RECONCILIATION TIERS  —  identical invariants, different bounds&lt;/b&gt;" style="rounded=1;arcSize=8;dashed=1;dashPattern=8 8;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;verticalAlign=top;spacingTop=8;spacingLeft=16;fontColor=#27d4ff;fontSize=14;fontStyle=1;fontFamily=Verdana;align=left;" vertex="1" parent="1">
+          <mxGeometry x="60" y="730" width="1560" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="node_ingest" value="&lt;b&gt;Input ingest&lt;/b&gt;&lt;br/&gt;owner · range · sequence&lt;br/&gt;hooks · rate limit" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="60" y="160" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="node_buffer" value="&lt;b&gt;Hold last input&lt;/b&gt;&lt;br/&gt;keyed by tick&lt;br/&gt;duplicate/stale rejected" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="160" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="node_server" value="&lt;b&gt;Server step&lt;/b&gt;&lt;br/&gt;advance all entities&lt;br/&gt;DT = 1/60" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="640" y="160" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="node_snapshot" value="&lt;b&gt;Opt-in snapshot&lt;/b&gt;&lt;br/&gt;replicate=true only&lt;br/&gt;server_only hidden" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="930" y="160" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="node_wire" value="&lt;b&gt;Network fault model&lt;/b&gt;&lt;br/&gt;latency · jitter · loss&lt;br/&gt;seeded LCG" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#1a1408;strokeColor=#ffb454;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="160" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="node_deliver" value="&lt;b&gt;Monotonic delivery&lt;/b&gt;&lt;br/&gt;drop stale snapshots&lt;br/&gt;count ignored" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#140d24;strokeColor=#b48cff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="510" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="node_predict" value="&lt;b&gt;Local prediction&lt;/b&gt;&lt;br/&gt;input history replay&lt;br/&gt;predicted bodies" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#140d24;strokeColor=#b48cff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="930" y="510" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="node_reconcile" value="&lt;b&gt;Reconciliation&lt;/b&gt;&lt;br/&gt;replay snapshot+1 .. now&lt;br/&gt;pos 0.01 / ori 0.001" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#140d24;strokeColor=#b48cff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="640" y="510" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="node_views" value="&lt;b&gt;Client views&lt;/b&gt;&lt;br/&gt;confirmed vs predicted&lt;br/&gt;separate state for tests" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#140d24;strokeColor=#b48cff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="510" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="node_reference" value="&lt;b&gt;Reference client (sim.rs)&lt;/b&gt;&lt;br/&gt;BTreeMap history · no rollback cap · fixed epsilon constants&lt;br/&gt;diagnostic counters: rollbacks, stale snapshots" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="90" y="790" width="700" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="node_adapter" value="&lt;b&gt;Adapter client (prediction.rs)&lt;/b&gt;&lt;br/&gt;lightyear HistoryBuffer · 10-tick cap · 32-tick history&lt;br/&gt;interpolation delay 6 ticks · configurable epsilons" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#140d24;strokeColor=#b48cff;strokeWidth=2;fontColor=#d6f2ff;fontSize=15;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="890" y="790" width="700" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="label0" value="next tick" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#8190a4;fontSize=13;fontStyle=0;fontFamily=Verdana;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="-180" y="416" width="600" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="label1" value="fault injection: +5.0 to pos.x → must converge" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#ff6b81;fontSize=13;fontStyle=0;fontFamily=Verdana;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="755" y="371" width="600" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="label2" value="Both tiers accept snapshots monotonically and share physics::advance; only the adapter bounds CPU work." style="text;html=1;strokeColor=none;fillColor=none;fontColor=#8190a4;fontSize=15;fontStyle=0;fontFamily=Verdana;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="540" y="951" width="600" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="edge0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#27d4ff;strokeWidth=2;dashed=0;fontColor=#27d4ff;fontSize=12;" edge="1" parent="1" source="node_ingest" target="node_buffer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#27d4ff;strokeWidth=2;dashed=0;fontColor=#27d4ff;fontSize=12;" edge="1" parent="1" source="node_buffer" target="node_server">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#27d4ff;strokeWidth=2;dashed=0;fontColor=#27d4ff;fontSize=12;" edge="1" parent="1" source="node_server" target="node_snapshot">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#27d4ff;strokeWidth=2;dashed=0;fontColor=#27d4ff;fontSize=12;" edge="1" parent="1" source="node_snapshot" target="node_wire">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#ffb454;strokeWidth=2;dashed=0;fontColor=#ffb454;fontSize=12;" edge="1" parent="1" source="node_wire" target="node_deliver">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#55ff99;strokeWidth=2;dashed=0;fontColor=#55ff99;fontSize=12;" edge="1" parent="1" source="node_deliver" target="node_predict">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#55ff99;strokeWidth=2;dashed=0;fontColor=#55ff99;fontSize=12;" edge="1" parent="1" source="node_predict" target="node_reconcile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#55ff99;strokeWidth=2;dashed=0;fontColor=#55ff99;fontSize=12;" edge="1" parent="1" source="node_reconcile" target="node_views">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#8190a4;strokeWidth=2;dashed=0;fontColor=#8190a4;fontSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="350" y="575" as="sourcePoint" />
+            <mxPoint x="185" y="290" as="targetPoint" />
+            <mxPoint x="185" y="575" as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#ff6b81;strokeWidth=2;dashed=1;fontColor=#ff6b81;fontSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1345" y="290" as="sourcePoint" />
+            <mxPoint x="765" y="510" as="targetPoint" />
+            <mxPoint x="1345" y="400" as="points" />
+            <mxPoint x="765" y="400" as="points" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

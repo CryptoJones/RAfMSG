@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="drawio" version="26.0.0">
+  <diagram name="RAfMSG-seam-map">
+    <mxGraphModel dx="1680" dy="1080" grid="0" page="1" pageWidth="1680" pageHeight="1080" background="#07090f">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="canvas" value="" style="rounded=0;html=0;fillColor=#07090f;strokeColor=none;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="1680" height="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="heading" value="&lt;b&gt;Eight Seams — One Contract Shape&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#d6f2ff;fontSize=28;fontStyle=1;fontFamily=Verdana;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="22" width="1560" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="subheading" value="Each seam declares an input surface, invariants and an executable test suite. Seams 1–4 also have dedicated contract files; seams 5–8 live with their subsystem tests." style="text;html=1;strokeColor=none;fillColor=none;fontColor=#8190a4;fontSize=15;fontFamily=Verdana;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="70" width="1560" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="node_s1" value="&lt;b&gt;S1 · Replication&lt;/b&gt;&lt;br/&gt;contract: seam1_replication.rs&lt;br/&gt;world.rs · sim.rs&lt;br/&gt;opt-in state; owner-gated mutation" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=17;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="60" y="170" width="350" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="node_s2" value="&lt;b&gt;S2 · Input authority&lt;/b&gt;&lt;br/&gt;contract: seam2_authority.rs&lt;br/&gt;input.rs · input_authority.rs&lt;br/&gt;sequenced, validated, hold-last-input" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=17;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="450" y="170" width="350" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="node_s3" value="&lt;b&gt;S3 · Physics prediction&lt;/b&gt;&lt;br/&gt;contract: seam3_determinism.rs&lt;br/&gt;prediction.rs · prediction_reconciliation.rs&lt;br/&gt;bit-exact replay; bounded rollback" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=17;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="840" y="170" width="350" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="node_s4" value="&lt;b&gt;S4 · IFCS&lt;/b&gt;&lt;br/&gt;contract: seam4_ifcs.rs&lt;br/&gt;ifcs.rs · flight.rs&lt;br/&gt;clamped axes; g-limit; one integrator" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1726;strokeColor=#27d4ff;strokeWidth=2;fontColor=#d6f2ff;fontSize=17;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="170" width="350" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="node_s5" value="&lt;b&gt;S5 · Meshing&lt;/b&gt;&lt;br/&gt;test: server_meshing.rs&lt;br/&gt;meshing.rs&lt;br/&gt;single authority; two-phase handoff" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1a14;strokeColor=#55ff99;strokeWidth=2;fontColor=#d6f2ff;fontSize=17;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="60" y="540" width="350" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="node_s6" value="&lt;b&gt;S6 · Floating origin&lt;/b&gt;&lt;br/&gt;test: floating_origin.rs&lt;br/&gt;floating_origin.rs&lt;br/&gt;local-frame physics; pop-free rebase" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1a14;strokeColor=#55ff99;strokeWidth=2;fontColor=#d6f2ff;fontSize=17;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="450" y="540" width="350" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="node_s7" value="&lt;b&gt;S7 · Interest&lt;/b&gt;&lt;br/&gt;test: interest_management.rs&lt;br/&gt;interest.rs&lt;br/&gt;R-tree; 10/12 km hysteresis" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1a14;strokeColor=#55ff99;strokeWidth=2;fontColor=#d6f2ff;fontSize=17;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="840" y="540" width="350" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="node_s8" value="&lt;b&gt;S8 · Backend&lt;/b&gt;&lt;br/&gt;test: backend_services.rs&lt;br/&gt;backend.rs&lt;br/&gt;HMAC tokens; sessions; SQLite" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#0a1a14;strokeColor=#55ff99;strokeWidth=2;fontColor=#d6f2ff;fontSize=17;fontFamily=Verdana;align=center;verticalAlign=middle;spacing=6;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="540" width="350" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="label0" value="cyan = reference-core contract      green = subsystem contract      amber = contract test file" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#8190a4;fontSize=15;fontStyle=0;fontFamily=Verdana;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="886" width="1580" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="label1" value="The harness reserves a slot for every seam; its seam_templates() entries are placeholders — real coverage is in the named test files." style="text;html=1;strokeColor=none;fillColor=none;fontColor=#8190a4;fontSize=15;fontStyle=0;fontFamily=Verdana;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="931" width="1580" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="label2" value="Total: 114 tests across 17 integration test files, all runnable headlessly with cargo test." style="text;html=1;strokeColor=none;fillColor=none;fontColor=#8190a4;fontSize=15;fontStyle=0;fontFamily=Verdana;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="976" width="1580" height="28" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
