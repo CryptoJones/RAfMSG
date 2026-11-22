@@ -53,12 +53,38 @@ impl AuthService {
 
     pub fn verify(&self, token: &str) -> Result<String, BackendError> {
         let (user, signature) = token.rsplit_once('.').ok_or(BackendError::InvalidToken)?;
-        let expected = hex_encode(&self.signature(user));
-        if signature == expected {
-            Ok(user.to_string())
-        } else {
-            Err(BackendError::InvalidToken)
-        }
+        let provided = hex_decode(signature).ok_or(BackendError::InvalidToken)?;
+        let mut mac =
+            HmacSha256::new_from_slice(&self.secret).expect("HMAC accepts any key length");
+        mac.update(user.as_bytes());
+        mac.verify_slice(&provided)
+            .map_err(|_| BackendError::InvalidToken)?;
+        Ok(user.to_string())
+    }
+}
+
+fn hex_decode(text: &str) -> Option<Vec<u8>> {
+    if !text.len().is_multiple_of(2) {
+        return None;
+    }
+    let mut out = Vec::with_capacity(text.len() / 2);
+    let bytes = text.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        let hi = hex_nibble(bytes[i])?;
+        let lo = hex_nibble(bytes[i + 1])?;
+        out.push((hi << 4) | lo);
+        i += 2;
+    }
+    Some(out)
+}
+
+fn hex_nibble(byte: u8) -> Option<u8> {
+    match byte {
+        b'0'..=b'9' => Some(byte - b'0'),
+        b'a'..=b'f' => Some(byte - b'a' + 10),
+        b'A'..=b'F' => Some(byte - b'A' + 10),
+        _ => None,
     }
 }
 

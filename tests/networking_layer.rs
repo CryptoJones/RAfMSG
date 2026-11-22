@@ -7,7 +7,7 @@ fn body(x: f64) -> ShipBody {
         pos: Vec3::new(x, 0.0, 0.0),
         vel: Vec3::ZERO,
         ori: Quat::IDENTITY,
-        ang_vel: Vec3::ZERO,
+        ang_vel: Vec3::new(0.1, -0.2, 0.3),
         mass: 10.0,
     }
 }
@@ -151,6 +151,14 @@ fn net_bandwidth_profiler() {
 
 #[test]
 fn net_connection_lifecycle() {
+    let mut pending = Connection::begin(1, 0, 5);
+    assert_eq!(pending.state, ConnectionState::Connecting);
+    assert!(!pending.update(5));
+    pending.heartbeat(5);
+    assert_eq!(pending.state, ConnectionState::Connected);
+    assert!(pending.update(11));
+    assert_eq!(pending.state, ConnectionState::TimedOut);
+
     let mut conn = Connection::connect(1, 0, 5);
     assert_eq!(conn.state, ConnectionState::Connected);
     assert!(!conn.update(5));

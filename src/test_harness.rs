@@ -11,6 +11,7 @@ use std::fmt::Debug;
 pub struct TestReport {
     pub passed: Vec<String>,
     pub failed: Vec<String>,
+    pub skipped: Vec<String>,
 }
 
 impl TestReport {
@@ -18,6 +19,7 @@ impl TestReport {
         Self {
             passed: Vec::new(),
             failed: Vec::new(),
+            skipped: Vec::new(),
         }
     }
 
@@ -34,7 +36,11 @@ impl TestReport {
     }
 
     pub fn summary(&self) -> String {
-        format!("{} passed, {} failed", self.passed.len(), self.failed.len())
+        let mut summary = format!("{} passed, {} failed", self.passed.len(), self.failed.len());
+        if !self.skipped.is_empty() {
+            summary.push_str(&format!(", {} skipped", self.skipped.len()));
+        }
+        summary
     }
 
     pub fn to_json(&self) -> String {
@@ -60,6 +66,10 @@ impl TestRunner {
 
     pub fn run(&mut self, name: &str, test: impl FnOnce() -> Result<(), String>) {
         self.report.record(name, test());
+    }
+
+    pub fn skip(&mut self, name: &str) {
+        self.report.skipped.push(name.to_string());
     }
 
     pub fn finish(self) -> TestReport {
@@ -167,7 +177,7 @@ impl SeamId {
 pub fn seam_templates() -> TestReport {
     let mut runner = TestRunner::new();
     for seam in SeamId::ALL {
-        runner.run(seam.name(), || Ok(()));
+        runner.skip(seam.name());
     }
     runner.finish()
 }

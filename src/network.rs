@@ -68,6 +68,9 @@ pub struct WireBody {
     pub qy: f64,
     pub qz: f64,
     pub qw: f64,
+    pub wx: f64,
+    pub wy: f64,
+    pub wz: f64,
     pub mass: f64,
 }
 
@@ -84,6 +87,9 @@ impl From<crate::types::ShipBody> for WireBody {
             qy: body.ori.y,
             qz: body.ori.z,
             qw: body.ori.w,
+            wx: body.ang_vel.x,
+            wy: body.ang_vel.y,
+            wz: body.ang_vel.z,
             mass: body.mass,
         }
     }
@@ -95,7 +101,7 @@ impl From<WireBody> for crate::types::ShipBody {
             pos: crate::types::Vec3::new(wire.px, wire.py, wire.pz),
             vel: crate::types::Vec3::new(wire.vx, wire.vy, wire.vz),
             ori: crate::types::Quat::new(wire.qx, wire.qy, wire.qz, wire.qw),
-            ang_vel: crate::types::Vec3::ZERO,
+            ang_vel: crate::types::Vec3::new(wire.wx, wire.wy, wire.wz),
             mass: wire.mass,
         }
     }
@@ -333,6 +339,15 @@ pub struct Connection {
 }
 
 impl Connection {
+    pub fn begin(client: ClientId, tick: u32, timeout_ticks: u32) -> Self {
+        Self {
+            client,
+            state: ConnectionState::Connecting,
+            last_heartbeat: tick,
+            timeout_ticks,
+        }
+    }
+
     pub fn connect(client: ClientId, tick: u32, timeout_ticks: u32) -> Self {
         Self {
             client,
@@ -344,15 +359,15 @@ impl Connection {
 
     pub fn heartbeat(&mut self, tick: u32) {
         self.last_heartbeat = tick;
-        if self.state == ConnectionState::TimedOut {
+        if self.state == ConnectionState::TimedOut || self.state == ConnectionState::Connecting {
             self.state = ConnectionState::Connected;
         }
     }
 
     pub fn update(&mut self, tick: u32) -> bool {
-        if self.state == ConnectionState::Connected
-            && tick.saturating_sub(self.last_heartbeat) > self.timeout_ticks
-        {
+        let live =
+            self.state == ConnectionState::Connected || self.state == ConnectionState::Connecting;
+        if live && tick.saturating_sub(self.last_heartbeat) > self.timeout_ticks {
             self.state = ConnectionState::TimedOut;
             return true;
         }

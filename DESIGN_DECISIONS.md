@@ -14,7 +14,7 @@ Scope: this crate is a **reference architecture**, not a shipped game. The decis
 4. **Authority fails closed.** Unowned entities, stale sequences, unregistered components, and out-of-order snapshots are rejected rather than guessed.
 5. **Headless by default.** Every test runs without a display, renderer, or external service.
 6. **Limits are explicit.** Epsilons, rollback caps, history sizes, rate limits, hysteresis bands, and thresholds are named constants, not magic numbers buried in control flow.
-7. **Gaps are recorded, not hidden.** Reserved enum states, placeholder templates, and security hardening needs are listed at the end.
+7. **Gaps are recorded, not hidden.** Reserved enum states, skipped harness rows, and security hardening needs are listed at the end.
 
 ## A. Foundations
 
@@ -108,11 +108,11 @@ Scope: this crate is a **reference architecture**, not a shipped game. The decis
 
 ## D. Network adapter
 
-### DD-015 — Flat f64 wire body, angular velocity omitted
-**Decision:** `WireBody` is 11 serde-encoded f64 fields; conversion resets `ang_vel` to zero.
-**Why:** a compact, stable binary contract that is easy to delta-compress.
-**Tradeoff:** angular state is not replicated on this seam.
-**Code:** `src/network.rs:59-102`.
+### DD-015 — Flat f64 wire body, including angular velocity
+**Decision:** `WireBody` is 14 serde-encoded f64 fields, and conversion round-trips `ang_vel`.
+**Why:** a compact, stable binary contract that is easy to delta-compress, without dropping spin.
+**Tradeoff:** floating-origin relative positions still do not reach this seam.
+**Code:** `src/network.rs:59-108`.
 
 ### DD-016 — Deltas and measured compression
 **Decision:** snapshots have a separate `Delta` form (changed + removed), and `BandwidthProfiler` records raw versus encoded bytes.
@@ -127,8 +127,8 @@ Scope: this crate is a **reference architecture**, not a shipped game. The decis
 **Code:** `src/network.rs:191-281`, `tests/networking_layer.rs:40-60`, `tests/networking_layer.rs:179-192`.
 
 ### DD-018 — Reliability and liveness above the transport
-**Decision:** `ReliableQueue` adds explicit sequence numbers, ACKs and retransmission; `Connection` uses heartbeats with a 5-tick timeout.
-**Why:** keeps the transport dumb and the policy inspectable.
+**Decision:** `ReliableQueue` adds explicit sequence numbers, ACKs and retransmission; `Connection` starts in `Connecting` via `begin` and becomes `Connected` on the first heartbeat. `connect` opens an already-live session. Both live states time out after missed heartbeats.
+**Why:** keeps the transport dumb and the policy inspectable, and the handshake state is a real transition.
 **Tradeoff:** retransmission re-sends every unacked message; there is no sliding window or timeout on the queue itself.
 **Code:** `src/network.rs:283-365`, `tests/networking_layer.rs:152-177`.
 
@@ -181,7 +181,7 @@ Scope: this crate is a **reference architecture**, not a shipped game. The decis
 ### DD-026 — Backend: HMAC tokens, sessions, parameterized SQL
 **Decision:** HMAC-SHA256 tokens over a user name; in-memory session manager with first-fit matchmaking; ship state stored as JSON in a SQLite table using parameterized upserts.
 **Why:** demonstrates an authenticated service seam with restart-safe persistence and no SQL injection surface.
-**Tradeoff:** tokens have no expiry and use a non-constant-time compare; session ids are counter-derived; `persist`/`reconnect` take a raw user string without a token check.
+**Tradeoff:** tokens have no expiry; session ids are counter-derived; `persist`/`reconnect` take a raw user string without a token check. Signature checks use HMAC `verify_slice`.
 **Code:** `src/backend.rs:31-62`, `src/backend.rs:84-178`, `src/backend.rs:212-310`, `tests/backend_services.rs:8-136`.
 
 ### DD-027 — Input authority: layered validation with pluggable hooks
@@ -195,7 +195,7 @@ Scope: this crate is a **reference architecture**, not a shipped game. The decis
 ### DD-028 — Eight named seams, real behavioral suites
 **Decision:** every seam has a reserved id and a named test module; seams 1–4 also have dedicated `seamN_*.rs` contract files.
 **Why:** the seam list is the architecture's table of contents and makes missing coverage visible.
-**Tradeoff:** `seam_templates()` currently emits no-op passing entries for seams 5–8; their real coverage is in the subsystem test files.
+**Tradeoff:** `seam_templates()` records each seam as skipped. Real coverage lives in the subsystem test files, and a skip is not a pass.
 **Code:** `src/test_harness.rs:129-173`, `tests/`, `tests/test_harness.rs:42-50`.
 
 ### DD-029 — Portable, inspectable reports
@@ -219,11 +219,10 @@ These are deliberate gaps in the reference architecture, not defects in the impl
 | Message shapes | three input message types and three body/snapshot representations with no conversions between them | `src/sim.rs:7-13`, `src/network.rs:59-118`, `src/input.rs:14-56` |
 | Identity | backend users (`String`) are not mapped to game `ClientId` (`u64`), so auth cannot gate in-world actions | `src/backend.rs:65-76`, `src/types.rs:3-5` |
 | Control law | `FlightTuning` and `IfcsConfig` duplicate control parameters | `src/flight.rs:101-122`, `src/ifcs.rs:3-20` |
-| Wire fidelity | angular velocity is dropped by `WireBody`; floating-origin relative positions do not reach the network seam | `src/network.rs:59-102`, `src/floating_origin.rs:146-148` |
+| Wire fidelity | floating-origin relative positions do not reach the network seam | `src/floating_origin.rs:146-148` |
 | Authorization hooks | interest visibility and meshing authority are not consulted by the main sim/network path | `src/interest.rs:150-165`, `src/meshing.rs:184-202` |
-| Reserved states | `AuthorityError::StaleTick` and `ConnectionState::Connecting` are declared but never produced | `src/world.rs:96-100`, `src/network.rs:319-322` |
-| Security hardening | non-constant-time token compare, no token expiry, predictable session ids, unsigned leases, unauthenticated persistence | `src/backend.rs:43-89`, `src/backend.rs:304-310`, `src/meshing.rs:17-23` |
-| Harness coverage | cross-seam templates are placeholders | `src/test_harness.rs:167-173` |
+| Reserved states | `AuthorityError::StaleTick` is declared but never produced | `src/world.rs:96-100` |
+| Security hardening | no token expiry, predictable session ids, unsigned leases, unauthenticated persistence | `src/backend.rs:84-110`, `src/backend.rs:304-310`, `src/meshing.rs:17-23` |
 
 ## Related documents
 

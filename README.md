@@ -80,7 +80,7 @@ Cargo.toml           crate definition and pinned dependency versions
 ## Status
 
 - **Done:** all eight seams implemented; 114 passing tests; strict CI gates; reproducible fault injection and headless runner.
-- **In progress:** the cross-seam harness (`src/test_harness.rs`) is new; its `seam_templates()` entries are placeholders, not coverage.
+- **In progress:** the cross-seam harness (`src/test_harness.rs`) lists every seam as skipped. Behavioral coverage stays in the per-seam test files.
 - **Deferred:** a single integrated runtime (ECS ↔ physics ↔ network ↔ origin ↔ interest ↔ backend), a shared identity between backend users and `ClientId`, and the hardening items listed in `DESIGN_DECISIONS.md`.
 
 ## Diagram sources
