@@ -12,5 +12,6 @@ pub mod physics;
 pub mod physics3d;
 pub mod prediction;
 pub mod sim;
+pub mod test_harness;
 pub mod types;
 pub mod world;
