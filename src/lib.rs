@@ -1,4 +1,5 @@
 pub mod ecs;
+pub mod flight;
 pub mod ifcs;
 pub mod input;
 pub mod net;
