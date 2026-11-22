@@ -2,6 +2,7 @@ pub mod ecs;
 pub mod ifcs;
 pub mod net;
 pub mod physics;
+pub mod physics3d;
 pub mod sim;
 pub mod types;
 pub mod world;

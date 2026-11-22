@@ -9,3 +9,4 @@ path = "src/lib.rs"
 
 [dependencies]
 bevy_ecs = "0.20.1"
+rapier3d-f64 = "0.36.1"
