@@ -1,6 +1,7 @@
 pub mod ecs;
 pub mod ifcs;
 pub mod net;
+pub mod network;
 pub mod physics;
 pub mod physics3d;
 pub mod sim;
