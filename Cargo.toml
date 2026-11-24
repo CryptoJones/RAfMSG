@@ -11,6 +11,14 @@ path = "src/lib.rs"
 name = "ifcs_ghidra_contract"
 path = "spec/ifcs_ghidra_contract.rs"
 
+[[test]]
+name = "network_ghidra_contract"
+path = "spec/network_ghidra_contract.rs"
+
+[[test]]
+name = "interest_ghidra_contract"
+path = "spec/interest_ghidra_contract.rs"
+
 [dependencies]
 bevy_ecs = "0.20.1"
 rapier3d-f64 = "0.36.1"

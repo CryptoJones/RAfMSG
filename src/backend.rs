@@ -11,6 +11,7 @@ type HmacSha256 = Hmac<Sha256>;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum BackendError {
     InvalidToken,
+    TokenExpired,
     SessionNotFound,
     SessionFull,
     AlreadyJoined,
@@ -40,10 +41,10 @@ impl AuthService {
         }
     }
 
-    fn signature(&self, user: &str) -> Vec<u8> {
+    fn signature(&self, payload: &str) -> Vec<u8> {
         let mut mac =
             HmacSha256::new_from_slice(&self.secret).expect("HMAC accepts any key length");
-        mac.update(user.as_bytes());
+        mac.update(payload.as_bytes());
         mac.finalize().into_bytes().to_vec()
     }
 
@@ -51,15 +52,33 @@ impl AuthService {
         format!("{}.{}", user, hex_encode(&self.signature(user)))
     }
 
+    pub fn issue_token_with_expiry(&self, user: &str, expires_at: u64) -> String {
+        let payload = format!("{user}@{expires_at}");
+        format!("{payload}.{}", hex_encode(&self.signature(&payload)))
+    }
+
     pub fn verify(&self, token: &str) -> Result<String, BackendError> {
-        let (user, signature) = token.rsplit_once('.').ok_or(BackendError::InvalidToken)?;
+        self.verify_at(token, 0)
+    }
+
+    pub fn verify_at(&self, token: &str, now: u64) -> Result<String, BackendError> {
+        let (payload, signature) = token.rsplit_once('.').ok_or(BackendError::InvalidToken)?;
         let provided = hex_decode(signature).ok_or(BackendError::InvalidToken)?;
         let mut mac =
             HmacSha256::new_from_slice(&self.secret).expect("HMAC accepts any key length");
-        mac.update(user.as_bytes());
+        mac.update(payload.as_bytes());
         mac.verify_slice(&provided)
             .map_err(|_| BackendError::InvalidToken)?;
-        Ok(user.to_string())
+        if let Some((user, exp_str)) = payload.rsplit_once('@') {
+            let expires_at = exp_str
+                .parse::<u64>()
+                .map_err(|_| BackendError::InvalidToken)?;
+            if now >= expires_at {
+                return Err(BackendError::TokenExpired);
+            }
+            return Ok(user.to_string());
+        }
+        Ok(payload.to_string())
     }
 }
 
@@ -108,10 +127,7 @@ impl Default for SessionId {
 }
 
 fn rand_session_id() -> u128 {
-    use std::sync::atomic::{AtomicU64, Ordering};
-    static COUNTER: AtomicU64 = AtomicU64::new(1);
-    let high = COUNTER.fetch_add(1, Ordering::Relaxed) as u128;
-    (high << 64) | 0x9aaa_aaaa_aaaa_aaaa
+    rand::random::<u128>()
 }
 
 #[derive(Clone, Debug)]
@@ -333,5 +349,69 @@ impl BackendService {
 
     pub fn reconnect(&self, user: &str) -> Result<Option<PersistedShip>, BackendError> {
         self.persistence.load(user)
+    }
+
+    pub fn persist_authenticated(
+        &self,
+        token: &str,
+        now: u64,
+        ship: &PersistedShip,
+    ) -> Result<(), BackendError> {
+        let user = self.auth.verify_at(token, now)?;
+        self.persistence.save(&user, ship)
+    }
+
+    pub fn reconnect_authenticated(
+        &self,
+        token: &str,
+        now: u64,
+    ) -> Result<Option<PersistedShip>, BackendError> {
+        let user = self.auth.verify_at(token, now)?;
+        self.persistence.load(&user)
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct IdentityRegistry {
+    next_id: u64,
+    user_to_client: BTreeMap<String, crate::types::ClientId>,
+    client_to_user: BTreeMap<crate::types::ClientId, String>,
+}
+
+impl IdentityRegistry {
+    pub fn new() -> Self {
+        Self {
+            next_id: 1,
+            ..Default::default()
+        }
+    }
+
+    pub fn get_or_assign(&mut self, user: &str) -> crate::types::ClientId {
+        if let Some(&id) = self.user_to_client.get(user) {
+            return id;
+        }
+        let id = self.next_id.max(1);
+        self.next_id = id + 1;
+        self.user_to_client.insert(user.to_string(), id);
+        self.client_to_user.insert(id, user.to_string());
+        id
+    }
+
+    pub fn client_of(&self, user: &str) -> Option<crate::types::ClientId> {
+        self.user_to_client.get(user).copied()
+    }
+
+    pub fn user_of(&self, client: crate::types::ClientId) -> Option<&str> {
+        self.client_to_user.get(&client).map(String::as_str)
+    }
+
+    pub fn authenticate_client(
+        &mut self,
+        auth: &AuthService,
+        token: &str,
+        now: u64,
+    ) -> Result<crate::types::ClientId, BackendError> {
+        let user = auth.verify_at(token, now)?;
+        Ok(self.get_or_assign(&user))
     }
 }

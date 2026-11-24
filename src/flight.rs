@@ -121,6 +121,35 @@ impl Default for FlightTuning {
     }
 }
 
+impl From<crate::ifcs::IfcsConfig> for FlightTuning {
+    fn from(cfg: crate::ifcs::IfcsConfig) -> Self {
+        Self {
+            thrust_n: cfg.thrust_n,
+            torque_nm: cfg.torque_nm,
+            g_limit_ms2: cfg.g_limit_ms2,
+            ang_damping: cfg.ang_damping,
+            ..Self::default()
+        }
+    }
+}
+
+impl From<FlightTuning> for crate::ifcs::IfcsConfig {
+    fn from(tuning: FlightTuning) -> Self {
+        Self {
+            thrust_n: tuning.thrust_n,
+            torque_nm: tuning.torque_nm,
+            g_limit_ms2: tuning.g_limit_ms2,
+            ang_damping: tuning.ang_damping,
+        }
+    }
+}
+
+impl From<&FlightTuning> for crate::ifcs::IfcsConfig {
+    fn from(tuning: &FlightTuning) -> Self {
+        Self::from(*tuning)
+    }
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct FlightController {
     pub tuning: FlightTuning,

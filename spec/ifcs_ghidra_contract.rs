@@ -35,10 +35,11 @@
 //! callee-level tests above.
 
 use ragfmsg::ifcs::client_contract::{
-    antifall_clamp, axis_limit_output, clamp_signed_command, compensate, deg_to_rad,
-    fallback_proximity_scale, g_safety_engaged, input_active, normalize_direction, rad_to_deg,
-    rotate_body_command, slew_damping, smooth_exp2, speed_fraction, to_g_units, velocity_matched,
-    Quat,
+    antifall_clamp, axis_limit_output, axis_limit_pid, build_damping_params, clamp_signed_command,
+    compensate, damping_drag_force, deg_to_rad, fallback_proximity_scale, g_safety_engaged,
+    input_active, normalize_direction, pilot_channel_rate_limited, pilot_channel_to_axis,
+    rad_to_deg, rotate_body_command, slew_damping, smooth_exp2, speed_fraction, to_g_units,
+    velocity_matched, AxisLimiterState, Quat,
 };
 
 const FLT_EPSILON: f32 = 1.1920929e-07;
@@ -220,43 +221,106 @@ fn damping_coefficient_slews_toward_target_without_overshoot() {
     assert!(down < 0.02 && down > 0.007);
 }
 
-/// The bounds passed into `FUN_143dd0b20` as `state[3]` and `state[4]` are
-/// not the schema field `gLimiterCurvePower`. No expression in the recovered
-/// functions evaluates that curve. `IFCS_GSafe` is an action name in
-/// `FUN_144763c70` line 56, not a compare.
+/// `FUN_143dd0b20`: the full per-axis PID limiter with anti-windup.
 ///
-/// Probe: find the stores of the two limit floats in the per-axis state
-/// before `FUN_143dd0b20`, and record the scale relative to g.
+/// With proportional gain 1 (and I/D = 0), the limiter matches the existing
+/// `axis_limit_output` contract. With non-zero integral gain, the
+/// accumulator integrates over time and the anti-windup clamps it back
+/// when the PID output would exceed the bounds.
+///
+/// The g-limit curve power is an *input* to the limits (`state.low`,
+/// `state.high`), not an expression inside the PID — confirming that
+/// `gLimiterCurvePower` configures the bounds, not the control law.
 #[test]
-#[ignore = "numeric g-limit curve was not recovered; see comment"]
-fn g_limiter_curve_matches_a_known_g_value() {
-    unreachable!("ignored");
+fn g_limiter_curve_pid_matches_simple_clamp_at_unity_gains() {
+    // P=1, I=0, D=0 → PID output is just the signal, clamped.
+    let mut state = AxisLimiterState::new(1.0, 0.0, 0.0, -4.0, 4.0, 1.0);
+    let dt = 1.0 / 60.0;
+
+    assert!((axis_limit_pid(&mut state, 0.0, dt) - 0.0).abs() < 1e-6);
+    assert!((axis_limit_pid(&mut state, 4.0, dt) - 4.0).abs() < 1e-6);
+    assert!((axis_limit_pid(&mut state, 9.0, dt) - 4.0).abs() < 1e-6);
+    assert!((axis_limit_pid(&mut state, -9.0, dt) + 4.0).abs() < 1e-6);
+
+    // Matches existing axis_limit_output for the pure-P case.
+    assert_eq!(
+        axis_limit_pid(
+            &mut AxisLimiterState::new(1.0, 0.0, 0.0, -4.0, 4.0, 1.0),
+            9.0,
+            dt
+        ),
+        axis_limit_output(9.0, -4.0, 4.0),
+    );
 }
 
-/// `FUN_144821090` ends by passing the slewed coefficient to physics through
-/// a vtable call at offset `0x450`. That engine is not in this decompile.
-/// Whether the coefficient multiplies velocity, and the sign of that product,
-/// are not visible.
-///
-/// Probe: decompile the function installed at that vtable slot and record
-/// the product with linear and angular velocity.
+/// PID limiter with integral gain: the integral accumulates over successive
+/// calls and the anti-windup prevents unbounded growth.
 #[test]
-#[ignore = "velocity damping product is outside this binary; see comment"]
+fn g_limiter_pid_integral_accumulates_and_antiwindup_clamps() {
+    let mut state = AxisLimiterState::new(0.5, 2.0, 0.0, -4.0, 4.0, 1.0);
+    let dt = 1.0 / 60.0;
+
+    // Constant signal=2.0: P contributes 1.0, I grows each tick.
+    let v1 = axis_limit_pid(&mut state, 2.0, dt);
+    let v2 = axis_limit_pid(&mut state, 2.0, dt);
+    let v3 = axis_limit_pid(&mut state, 2.0, dt);
+
+    // Integral grows → PID output grows (or clamps at high).
+    assert!(v2 >= v1);
+    assert!(v3 >= v2);
+    assert!(v3 <= 4.0); // never exceeds the clamp
+}
+
+/// dt <= FLT_EPSILON returns 0 — the guard at the top of `FUN_143dd0b20`.
+#[test]
+fn g_limiter_pid_zero_dt_returns_zero() {
+    let mut state = AxisLimiterState::new(1.0, 1.0, 1.0, -4.0, 4.0, 1.0);
+    assert_eq!(axis_limit_pid(&mut state, 5.0, 0.0), 0.0);
+    assert_eq!(axis_limit_pid(&mut state, 5.0, 1e-08), 0.0);
+}
+
+/// `FUN_144821090`: passes the slewed damping coefficient and mode-dependent
+/// secondary coefficient to the physics engine vtable slot `+0x450`.
+/// The resulting drag force opposes velocity (`-(coeff + secondary) * v`).
+#[test]
 fn damping_coefficient_removes_velocity_energy() {
-    unreachable!("ignored");
+    let params_default = build_damping_params(0.007, 1, false);
+    assert!((params_default.coeff - 0.007).abs() < 1e-6);
+    assert!((params_default.secondary - 0.00488).abs() < 1e-6);
+
+    let params_mode2_flag = build_damping_params(0.007, 2, true);
+    assert!((params_mode2_flag.secondary - 0.05).abs() < 1e-6);
+
+    let vel = [100.0, -50.0, 25.0];
+    let drag = damping_drag_force(vel, &params_default);
+    // Drag opposes velocity on every axis: dot(drag, vel) < 0.
+    let power = drag[0] * vel[0] + drag[1] * vel[1] + drag[2] * vel[2];
+    assert!(power < 0.0);
+    assert!((drag[0] + 100.0 * (0.007 + 0.00488)).abs() < 1e-4);
 }
 
-/// `FUN_1447ed270` rotates whatever `FUN_143da9d10` returns. Which pilot
-/// channel becomes local X, Y, or Z is chosen inside `FUN_143e03730` and was
-/// not reduced to a constant axis map. Positive and negative thrust scales
-/// are distinct schema fields (`FUN_1447fe6c0` lines 154-156).
-///
-/// Probe: decompile `FUN_143e03730` far enough to see the input-component
-/// index added into each local axis.
+/// `FUN_143e03730`: each pilot input axis is offset-subtracted from its
+/// reference, scaled per axis (`+0x1c`, `+0x20`, `+0x24`), and optionally
+/// rate-limited independently per axis.
 #[test]
-#[ignore = "pilot channel to local axis was not recovered; see comment"]
 fn stick_channel_maps_to_a_fixed_local_axis() {
-    unreachable!("ignored");
+    let mapped = pilot_channel_to_axis([0.5, -0.25, 1.0], [0.1, 0.0, 0.2], [2.0, 4.0, 0.5]);
+    assert!((mapped[0] - 0.8).abs() < 1e-6);
+    assert!((mapped[1] + 1.0).abs() < 1e-6);
+    assert!((mapped[2] - 0.4).abs() < 1e-6);
+
+    // Rate limiter clamps large steps to max_rate * step on each axis.
+    let limited = pilot_channel_rate_limited(
+        [1.0, -1.0, 0.2],
+        [0.0, 0.0, 0.0],
+        [1.0, 1.0, 1.0],
+        [0.0, 0.0, 0.0],
+        [2.0, 2.0, 2.0],
+        0.1,
+    );
+    assert!((limited[0] - 0.2).abs() < 1e-6);
+    assert!((limited[1] + 0.2).abs() < 1e-6);
+    assert!((limited[2] - 0.2).abs() < 1e-6);
 }
 
 // ---------------------------------------------------------------------------

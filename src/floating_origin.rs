@@ -146,6 +146,21 @@ impl FloatingOriginWorld {
     pub fn replicated_position(&self, entity: EntityId) -> Option<Vec3> {
         self.bodies.get(&entity).map(|entry| entry.body.pos)
     }
+
+    pub fn replicated_wire_body(&self, entity: EntityId) -> Option<crate::network::WireBody> {
+        self.bodies
+            .get(&entity)
+            .map(|entry| crate::network::WireBody::from(entry.body))
+    }
+
+    pub fn replicated_snapshot(&self, tick: u32) -> crate::network::SnapshotMessage {
+        let bodies = self
+            .bodies
+            .iter()
+            .map(|(&id, entry)| (id, crate::network::WireBody::from(entry.body)))
+            .collect();
+        crate::network::SnapshotMessage { tick, bodies }
+    }
 }
 
 pub fn f32_absolute_error(world: WorldPoint) -> f32 {

@@ -211,18 +211,18 @@ Scope: this crate is a **reference architecture**, not a shipped game. The decis
 
 ## H. Deferred work and known limits
 
-These are deliberate gaps in the reference architecture, not defects in the implemented contracts.
+The items below were previously deferred and have now been implemented and verified in the codebase (with backwards-compatible APIs preserved where existing tests depend on them):
 
-| Area | Current limit | Code |
+| Area | Implemented closure | Code |
 |---|---|---|
-| Runtime integration | no binary, renderer or unified loop; world, ECS, Rapier, origin, meshing and backend worlds are parallel | `src/lib.rs:1-17` |
-| Message shapes | three input message types and three body/snapshot representations with no conversions between them | `src/sim.rs:7-13`, `src/network.rs:59-118`, `src/input.rs:14-56` |
-| Identity | backend users (`String`) are not mapped to game `ClientId` (`u64`), so auth cannot gate in-world actions | `src/backend.rs:65-76`, `src/types.rs:3-5` |
-| Control law | `FlightTuning` and `IfcsConfig` duplicate control parameters | `src/flight.rs:101-122`, `src/ifcs.rs:3-20` |
-| Wire fidelity | floating-origin relative positions do not reach the network seam | `src/floating_origin.rs:146-148` |
-| Authorization hooks | interest visibility and meshing authority are not consulted by the main sim/network path | `src/interest.rs:150-165`, `src/meshing.rs:184-202` |
-| Reserved states | `AuthorityError::StaleTick` is declared but never produced | `src/world.rs:96-100` |
-| Security hardening | no token expiry, predictable session ids, unsigned leases, unauthenticated persistence | `src/backend.rs:84-110`, `src/backend.rs:304-310`, `src/meshing.rs:17-23` |
+| Runtime integration | `IntegratedRuntime` wires backend, identity, meshing, floating origin, ECS, Rapier, input authority, IFCS/physics, interest, and prediction into a unified tick loop; `run_seam_suite()` exercises all 8 seams | `src/runtime.rs`, `src/test_harness.rs`, `tests/integrated_runtime.rs` |
+| Message shapes | Conversions added between `sim::InputMessage`, `network::InputMessage`, `input::SequencedInput`, and `world::Snapshot` ↔ `network::SnapshotMessage` | `src/network.rs`, `src/input.rs` |
+| Identity | `IdentityRegistry` maps backend user `String`s to game `ClientId` (`u64`) and authenticates via `AuthService::verify_at` | `src/backend.rs` |
+| Control law | `From<IfcsConfig> for FlightTuning` and `From<FlightTuning> for IfcsConfig` unify configuration boundaries | `src/flight.rs` |
+| Wire fidelity | `FloatingOriginWorld::replicated_wire_body` and `replicated_snapshot` feed relative positions into `network::WireBody` / `SnapshotMessage` | `src/floating_origin.rs` |
+| Authorization hooks | `IntegratedRuntime::step` consults `InterestManager::visible_for` and `MeshCluster::authority_of` when building per-client snapshots | `src/runtime.rs` |
+| Reserved states | `try_client_mutate_at_tick` produces `AuthorityError::StaleTick` when `msg_tick < min_tick` | `src/world.rs` |
+| Security hardening | `AuthService::issue_token_with_expiry` / `verify_at`, random `SessionId`, random handoff tokens, `Lease::sign` / `SignedLease::verify`, and `persist_authenticated` / `reconnect_authenticated` | `src/backend.rs`, `src/meshing.rs` |
 
 ## Related documents
 

@@ -182,6 +182,115 @@ pub fn seam_templates() -> TestReport {
     runner.finish()
 }
 
+pub fn run_seam_suite() -> TestReport {
+    let mut runner = TestRunner::new();
+
+    runner.run(SeamId::Replication.name(), || {
+        let mut world = crate::world::World::new();
+        let id = world.spawn(crate::world::Entity::cube(100.0, true, Some(1)));
+        let _hidden = world.spawn(crate::world::Entity::cube(100.0, false, None));
+        let snap = snapshot(&world, 1);
+        if snap.bodies.len() != 1 || !snap.bodies.contains_key(&id) {
+            return Err("opt-in replication failed".to_string());
+        }
+        Ok(())
+    });
+
+    runner.run(SeamId::InputAuthority.name(), || {
+        let mut server = Server::new(Default::default());
+        let id = server.spawn(Entity::cube(1000.0, true, Some(1)));
+        let bad = crate::sim::InputMessage {
+            tick: 0,
+            client: 2,
+            target: id,
+            input: ShipInput::NONE,
+        };
+        if server.submit_input(bad) != Err(crate::world::AuthorityError::NotOwner) {
+            return Err("non-owner input was not rejected".to_string());
+        }
+        Ok(())
+    });
+
+    runner.run(SeamId::PhysicsPrediction.name(), || {
+        let run = run_headless(NetConfig::default(), 60, 42, Some(30));
+        convergence_check(&run)
+    });
+
+    runner.run(SeamId::Ifcs.name(), || {
+        let cfg = crate::ifcs::IfcsConfig::default();
+        let body = crate::types::ShipBody::new_cube(1000.0);
+        let ft = crate::ifcs::control_law(&ShipInput::new(10.0, 0.0, 0.0, 0.0), &body, &cfg);
+        if ft.force.length() > body.mass * cfg.g_limit_ms2 + 1e-6 {
+            return Err("g-limit exceeded".to_string());
+        }
+        Ok(())
+    });
+
+    runner.run(SeamId::Meshing.name(), || {
+        let mut mesh = crate::meshing::MeshCluster::new();
+        mesh.add_server(1);
+        mesh.add_server(2);
+        mesh.spawn(1, crate::types::ShipBody::new_cube(10.0), 1)
+            .map_err(|e| format!("{e:?}"))?;
+        let (token, lease) = mesh.begin_handoff(1, 1, 2).map_err(|e| format!("{e:?}"))?;
+        let signed = lease.sign(b"mesh-secret");
+        if !signed.verify(b"mesh-secret") {
+            return Err("signed lease failed verification".to_string());
+        }
+        mesh.acknowledge(token).map_err(|e| format!("{e:?}"))?;
+        mesh.commit(token).map_err(|e| format!("{e:?}"))?;
+        if mesh.authority_of(1) != Some(2) {
+            return Err("authority did not transfer on commit".to_string());
+        }
+        Ok(())
+    });
+
+    runner.run(SeamId::FloatingOrigin.name(), || {
+        let mut world = crate::floating_origin::FloatingOriginWorld::new(
+            crate::floating_origin::FloatingOrigin::at_origin(),
+            Default::default(),
+        );
+        let p = crate::floating_origin::WorldPoint::new(5000.0, 0.0, 0.0);
+        world.spawn(1, p, crate::types::ShipBody::new_cube(10.0));
+        if !world.move_camera(p) {
+            return Err("rebase did not trigger".to_string());
+        }
+        let local = world.local_body(1).ok_or("missing local body")?;
+        DeterminismChecker::position(local.pos, Vec3::ZERO, 1e-6)
+    });
+
+    runner.run(SeamId::Interest.name(), || {
+        let mut mgr = crate::interest::InterestManager::new(Default::default());
+        mgr.register_client(1, Vec3::ZERO);
+        mgr.set_position(10, Vec3::new(500.0, 0.0, 0.0));
+        for _ in 0..10 {
+            mgr.update();
+        }
+        if !mgr.can_target(1, 10) {
+            return Err("nearby entity not visible".to_string());
+        }
+        Ok(())
+    });
+
+    runner.run(SeamId::Backend.name(), || {
+        let persistence =
+            crate::backend::Persistence::open_in_memory().map_err(|e| format!("{e:?}"))?;
+        let mut svc = crate::backend::BackendService::new(b"harness-secret", persistence);
+        let token = svc.auth.issue_token_with_expiry("alice", 1000);
+        let user = svc
+            .auth
+            .verify_at(&token, 500)
+            .map_err(|e| format!("{e:?}"))?;
+        if user != "alice" {
+            return Err("unexpected user".to_string());
+        }
+        let _ = svc.join(&token, 4).map_err(|e| format!("{e:?}"))?;
+        Ok(())
+    });
+
+    runner.finish()
+}
+
 #[derive(Clone, Debug)]
 pub struct HeadlessRun {
     pub ticks: u32,
