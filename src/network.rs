@@ -121,12 +121,74 @@ impl InputMessage {
     pub fn tick(&self) -> Tick {
         Tick(self.tick)
     }
+
+    pub fn into_sim(self, target: EntityId) -> crate::sim::InputMessage {
+        crate::sim::InputMessage {
+            tick: self.tick as u64,
+            client: self.client,
+            target,
+            input: crate::types::ShipInput::new(self.throttle, self.yaw, self.pitch, self.roll),
+        }
+    }
+}
+
+impl From<crate::sim::InputMessage> for InputMessage {
+    fn from(msg: crate::sim::InputMessage) -> Self {
+        Self {
+            tick: msg.tick as u32,
+            client: msg.client,
+            throttle: msg.input.throttle,
+            yaw: msg.input.yaw,
+            pitch: msg.input.pitch,
+            roll: msg.input.roll,
+        }
+    }
+}
+
+impl From<&crate::input::SequencedInput> for InputMessage {
+    fn from(msg: &crate::input::SequencedInput) -> Self {
+        Self {
+            tick: msg.tick,
+            client: msg.client,
+            throttle: msg.throttle,
+            yaw: msg.yaw,
+            pitch: msg.pitch,
+            roll: msg.roll,
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SnapshotMessage {
     pub tick: u32,
     pub bodies: Vec<(EntityId, WireBody)>,
+}
+
+impl SnapshotMessage {
+    pub fn to_world_snapshot(&self) -> crate::world::Snapshot {
+        let bodies = self
+            .bodies
+            .iter()
+            .map(|(id, wire)| (*id, crate::types::ShipBody::from(*wire)))
+            .collect();
+        crate::world::Snapshot {
+            tick: self.tick as u64,
+            bodies,
+        }
+    }
+}
+
+impl From<&crate::world::Snapshot> for SnapshotMessage {
+    fn from(snap: &crate::world::Snapshot) -> Self {
+        Self {
+            tick: snap.tick as u32,
+            bodies: snap
+                .bodies
+                .iter()
+                .map(|(id, body)| (*id, WireBody::from(*body)))
+                .collect(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

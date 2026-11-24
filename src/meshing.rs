@@ -1,6 +1,10 @@
 use crate::types::{EntityId, ShipBody};
+use hmac::{Hmac, Mac};
 use serde::{Deserialize, Serialize};
+use sha2::Sha256;
 use std::collections::{BTreeMap, BTreeSet};
+
+type HmacSha256 = Hmac<Sha256>;
 
 pub type ServerId = u64;
 pub type HandoffToken = u64;
@@ -20,6 +24,37 @@ pub struct Lease {
     pub owner: ServerId,
     pub generation: u64,
     pub body: WireBodyMesh,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SignedLease {
+    pub lease: Lease,
+    pub signature: Vec<u8>,
+}
+
+impl Lease {
+    pub fn sign(&self, secret: &[u8]) -> SignedLease {
+        SignedLease {
+            lease: self.clone(),
+            signature: lease_mac(self, secret),
+        }
+    }
+}
+
+impl SignedLease {
+    pub fn verify(&self, secret: &[u8]) -> bool {
+        let mut mac = HmacSha256::new_from_slice(secret).expect("HMAC accepts any key length");
+        let bytes = bincode::serialize(&self.lease).expect("Lease is serializable");
+        mac.update(&bytes);
+        mac.verify_slice(&self.signature).is_ok()
+    }
+}
+
+fn lease_mac(lease: &Lease, secret: &[u8]) -> Vec<u8> {
+    let mut mac = HmacSha256::new_from_slice(secret).expect("HMAC accepts any key length");
+    let bytes = bincode::serialize(lease).expect("Lease is serializable");
+    mac.update(&bytes);
+    mac.finalize().into_bytes().to_vec()
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
@@ -216,8 +251,11 @@ impl MeshCluster {
         if !self.coordinator.load.contains_key(&to) {
             return Err(MeshError::UnknownServer);
         }
-        let token = self.next_token;
-        self.next_token += 1;
+        let mut token = rand::random::<u64>();
+        while self.handoffs.contains_key(&token) {
+            token = rand::random::<u64>();
+        }
+        self.next_token = token;
         let (_, generation) = self.authority[&entity];
         let body = self.bodies[&entity];
         self.handoffs.insert(

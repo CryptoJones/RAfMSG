@@ -115,3 +115,17 @@ pub fn try_client_mutate(
         }
     }
 }
+
+pub fn try_client_mutate_at_tick(
+    world: &mut World,
+    client: ClientId,
+    id: EntityId,
+    body: ShipBody,
+    msg_tick: Tick,
+    min_tick: Tick,
+) -> Result<(), AuthorityError> {
+    if msg_tick < min_tick {
+        return Err(AuthorityError::StaleTick);
+    }
+    try_client_mutate(world, client, id, body)
+}

@@ -55,6 +55,17 @@ impl SequencedInput {
     }
 }
 
+impl From<&SequencedInput> for crate::sim::InputMessage {
+    fn from(msg: &SequencedInput) -> Self {
+        Self {
+            tick: msg.tick as u64,
+            client: msg.client,
+            target: msg.entity,
+            input: msg.input(),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum InputViolation {
     NotOwner,
